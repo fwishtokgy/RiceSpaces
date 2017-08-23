@@ -28,12 +28,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("OnPointerEnter");
-        if (ToolTipObject==null && !isActive)
-        {
-            MouseWatcher.Instance.SetActiveTooltip(this);
-            Debug.Log("ToolTip Registrated");
-        }
+        MouseWatcher.Instance.SetActiveTooltip(this);
     }
     public void SetToolTipTrue(Vector2 positionInfo)
     {
@@ -45,14 +40,11 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
         isActive = true;
     }
 
+
     public void OnPointerExit(PointerEventData eventData)
     {
-        Debug.Log("OnPointerExit");
-        if(ToolTipObject == null && isActive)
-        {
-            MouseWatcher.Instance.RemoveActiveTooltipReg(this);
-            Debug.Log("ToolTip Deregistrated");
-        }
+        MouseWatcher.Instance.RemoveActiveTooltipReg(this);
+        SetToolTipFalse();
     }
     public void SetToolTipFalse()
     {

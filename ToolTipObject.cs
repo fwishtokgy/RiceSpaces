@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ToolTipObject : MonoBehaviour {
-
+    
     public bool AutoHides;
     Vector2 position;
     public Vector2 Position
@@ -16,30 +16,25 @@ public class ToolTipObject : MonoBehaviour {
         }
     }
 
-    public void Move(float x, float y)
+    public virtual void Move(float x, float y)
     {
         this.transform.position = new Vector3(x, y, this.transform.position.z);
     }
     public void Move(Vector3 pos)
     {
-        this.transform.position = new Vector3(pos.x, pos.y, this.transform.position.z);
+        Move(pos.x, pos.y);
     }
 
-    public void Enable(Vector3 newPosition)
+    public virtual void Enable(Vector3 newPosition)
     {
-        this.transform.position = new Vector3(newPosition.x, newPosition.y, this.transform.position.z);
-        StartCoroutine("WaitForWait");
-    }
-
-    IEnumerator WaitForWait()
-    {
-        yield return new WaitForSeconds(1f);
+        Move(newPosition.x, newPosition.y);//this.transform.position = new Vector3(newPosition.x, newPosition.y, this.transform.position.z);
         this.gameObject.SetActive(true);
-        StartCoroutine("AutoHide");
+        if (AutoHides) StartCoroutine("AutoHide");
     }
 
-    public void Disable()
+    public virtual void Disable()
     {
+        if (AutoHides) StopCoroutine("AutoHide");
         this.gameObject.SetActive(false);
     }
 

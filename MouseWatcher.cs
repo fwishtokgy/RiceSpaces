@@ -9,6 +9,14 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
     bool isToolTipWatchActive;
     bool isToolTipActivationValid;
     ToolTip activeTooltip;
+    public Transform currentHoverObject
+    {
+        get
+        {
+            if (activeTooltip == null) return null;
+            return activeTooltip.transform;
+        }
+    }
 
     float toolTipWatchCtr;
 
@@ -19,9 +27,23 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
     bool toolTipWatchActive;
 
     bool toolTipCurrentlyVisible;
+    public string CurrentObjectDescription
+    {
+        get
+        {
+            if (toolTipCurrentlyVisible)
+            {
+                return activeTooltip.description;
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
 
     private Vector2 lastPosition;
-    private float timeToStatic = 1f;
+    private float timeToStatic = .5f;
     private float secondsIdle = 0f;
     private float secondsToIdle = 0f;
     private bool isStatic;
@@ -43,6 +65,9 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
                 {
                     GameObject obj = Instantiate(Resources.Load("DefaultToolTip")) as GameObject;
                     defaultToolTip = obj.GetComponent<DefaultToolTipObject>();
+                } else
+                {
+                    defaultToolTip.gameObject.SetActive(false);
                 }
             }
             return defaultToolTip as ToolTipObject;
@@ -54,7 +79,6 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
 	void Start () {
         isToolTipWatchActive = false;
         lastPosition = Input.mousePosition;
-        Debug.Log("Initiated");
 	}
 
 
@@ -65,7 +89,7 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
         {
             if (!isStatic)
             {
-                if(secondsIdle < timeToStatic)
+                if(secondsToIdle < timeToStatic)
                 {
                     secondsToIdle += Time.deltaTime;
                 }
@@ -80,6 +104,7 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
                 }
             }
         }
+        /*
         else // Mouse has moved or is moving
         {
             if (isStatic)
@@ -90,11 +115,8 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
                     DeactivateToolTip();
                 }
             }
-            if (secondsIdle > 0f)
-            {
-                secondsIdle = 0f;
-            }
         }
+        */
         lastPosition = Input.mousePosition;
     }
 
@@ -104,33 +126,24 @@ public class MouseWatcher : SingletonMonobehaviour<MouseWatcher>
         {
             activeTooltip = obj;
             toolTipWatchActive = true;
-            //StartCoroutine("ToolTipIdleWatch");
+            secondsToIdle = 0f;
         }
     }
     public void RemoveActiveTooltipReg(ToolTip obj)
     {
         if (activeTooltip == obj)
         {
+            DeactivateToolTip();
+            isStatic = !isStatic;
             activeTooltip = null;
             toolTipWatchActive = false;
-            //StopCoroutine("ToolTipIdleWatch");
         }
     }
-
-    IEnumerator ToolTipIdleWatch()
-    {
-        yield return new WaitForSeconds(timeToStatic);
-        if (toolTipWatchCtr >= timeToStatic)
-        {
-            //activate tooltip!
-            ActivateToolTip();
-        }
-    }
-
+    
     private void ActivateToolTip()
     {
-        defaultToolTip.SetText(activeTooltip.description);
         activeTooltip.SetToolTipTrue(Input.mousePosition);
+        defaultToolTip.SetText(activeTooltip.description);
         toolTipCurrentlyVisible = true;
     }
     private void DeactivateToolTip()
